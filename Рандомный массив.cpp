@@ -6,52 +6,48 @@
 #include <unordered_set>
 using namespace std;
 
-//Создать массив, заполнить случайными значениями.
-//Создать второй массив.
-//Напишите программу которая во второй массив положит не уникальные
-//элементы из первого массива без повторений.
-//Для проверки использовать массив из примера.
-//Пример:
-//
-//2 4 6 2 4 5 8 6 9
-//2 4 6 0 0 0 0 0 0
+//Реализовать сортировку подсчетом.
 
-const int ARRAY_SIZE = 9;
-
-int main() {
-    int firstArray[ARRAY_SIZE] = { 2, 4, 6, 2, 4, 5, 8, 6, 9 };
-    int secondArray[ARRAY_SIZE] = { 0 };
-
-    unordered_set<int> uniqueElements;
-
-    for (int i = 0; i < ARRAY_SIZE; i++) {
-        if (uniqueElements.find(firstArray[i]) != uniqueElements.end()) {
-            continue;
-        }
-
-        bool isDuplicate = false;
-        for (int j = i + 1; j < ARRAY_SIZE; j++) {
-            if (firstArray[i] == firstArray[j]) {
-                isDuplicate = true;
-                break;
-            }
-        }
-
-        if (isDuplicate) {
-            secondArray[i] = firstArray[i];
-            uniqueElements.insert(firstArray[i]);
+void countingSort(int arr[], int size) {
+    int max = arr[0];
+    for (int i = 1; i < size; ++i) {
+        if (arr[i] > max) {
+            max = arr[i];
         }
     }
 
-    cout << "First Array: ";
-    for (int i = 0; i < ARRAY_SIZE; i++) {
-        cout << firstArray[i] << " ";
+    int* count = new int[max + 1]();
+
+    for (int i = 0; i < size; ++i) {
+        ++count[arr[i]];
+    }
+
+    int idx = 0;
+    for (int i = 0; i <= max; ++i) {
+        while (count[i] > 0) {
+            arr[idx++] = i;
+            --count[i];
+        }
+    }
+
+    delete[] count;
+}
+
+int main() {
+    int arr[] = { 5, 2, 8, 3, 1 };
+    int size = sizeof(arr) / sizeof(arr[0]);
+
+    cout << "Исходный массив: ";
+    for (int i = 0; i < size; ++i) {
+        cout << arr[i] << " ";
     }
     cout << endl;
 
-    cout << "Second Array: ";
-    for (int i = 0; i < ARRAY_SIZE; i++) {
-        cout << secondArray[i] << " ";
+    countingSort(arr, size);
+
+    cout << "Отсортированный массив: ";
+    for (int i = 0; i < size; ++i) {
+        cout << arr[i] << " ";
     }
     cout << endl;
 
