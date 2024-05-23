@@ -1,69 +1,155 @@
 ﻿#include <iostream>
-#include <map>
 using namespace std;
 
-template<typename Key, typename Value>
-class Map {
+template <typename T, typename T2>
+class MyMap {
 private:
-    map<Key, Value> data;
+    class Node {
+    public:
+        T key;
+        T2 value;
+        Node* left = nullptr;
+        Node* right = nullptr;
+
+        Node(T& key, T2 value) : key(key), value(value) {}
+
+    };
+
+    Node* root = nullptr;
 
 public:
-    void insert(const Key& key, const Value& value) {
-        data[key] = value;
+
+    void insert(T key, T2 value) {
+        root = recursiveInsert(this->root, key, value);
     }
 
-    bool erase(const Key& key) {
-        auto it = data.find(key);
-        if (it != data.end()) {
-            data.erase(it);
-            return true;
-        }
-        return false;
+    void show() {
+        recursiveShow(this->root);
     }
 
-    bool find(const Key& key, Value& value) const {
-        auto it = data.find(key);
-        if (it != data.end()) {
-            value = it->second;
-            return true;
-        }
-        return false;
+    void remove(T key) {
+        root = recursiveRemove(this->root, key);
     }
 
-    void print() const {
-        for (const auto& pair : data) {
-            cout << "Key: " << pair.first << ", Value: " << pair.second << endl;
+    bool find(const T findKey) {
+        return 0;
+    }
+
+    T2& operator[](const T findKey) {
+        return 0;
+    }
+
+    bool find(T Key) {
+        Node* node = recursiveFind(this->root, key);
+        if (node == nullptr) return false;
+        return true;
+    }
+
+    T2& operator[]( T Key) {
+        Node* node = recursiveFind(this->root, key);
+        if (node != nullptr) return node->value;
+        else throw out_of_range("not found");
+    }
+
+private:
+    Node* recursiveInsert(Node* node, T key, T2 value) {
+        if (node == nullptr) {
+            return new Node(key, value);
+        }
+
+        if (key < node->key) {
+            node->left = recursiveInsert(node->left, key, value);
+        }
+        else if (key > node->key) {
+            node->right = recursiveInsert(node->right, key, value);
+        }
+
+        return node;
+    }
+
+    void recursiveShow(Node* node) {
+        if (node != nullptr) {
+            recursiveShow(node->left);
+            cout << "[" << node->key << "] = " << node->value << ", ";
+            recursiveShow(node->right);
         }
     }
+    Node* findMin(Node* node) {
+        while (node->left != nullptr) node = node->left;
+        return node;
+    }
+
+    Node* recursiveRemove(Node* node, T key) {
+        if (node == nullptr) return node;
+        if (key < node->key) {
+            node->left = recursiveRemove(node->left, key);
+        }
+        else if (key > node->key) {
+            node->right = recursiveRemove(node->right, key);
+        }
+        else {
+            if (node->left == nullptr) {
+                Node* temp = node->right;
+                delete node;
+                return temp;
+            }
+            else if (node->right == nullptr) {
+                Node* temp = node->left;
+                delete node;
+                return temp;
+            }
+
+            Node* temp = findMin(node->right);
+            node->key = temp->key;
+            node->value = temp->value;
+            node->right = recursiveRemove(node->right, temp->key);
+        }
+        return node;
+    }
+
+    bool recursiveFind(Node* node, const T& key) const {
+        if (node == nullptr) return false;
+        if (key == node->key) return true;
+        if (key < node->key) return recursiveFind(node->left, key);
+        return recursiveFind(node->right, key);
+    }
+
+    Node* findNode(Node* node, const T& key) const {
+        if (node == nullptr) return nullptr;
+        if (key == node->key) return node;
+        if (key < node->key) return findNode(node->left, key);
+        return findNode(node->right, key);
+    }
+
+
 };
 
-int main() {
-    Map<string, int> myMap;
-    myMap.insert("one", 1);
-    myMap.insert("two", 2);
-    myMap.insert("three", 3);
+int main()
+{
+    MyMap<int, char> map;
+    map.insert(1, 'h');
+    map.insert(2, 'c');
+    map.insert(3, 'p');
+    map.insert(4, 'e');
+    map.insert(5, 'r');
+    map.show();
+    map.insert(6, 'r');
+    cout << endl;
+    map.show();
 
-    int value;
-    if (myMap.find("two", value)) {
-        cout << "Found: " << value << endl;
+    if (map.find(3)) {
+        cout << "Found key 3" << endl;
     }
     else {
-        cout << "Key not found" << endl;
+        cout << "Key 3 not found" << endl;
     }
-    if (myMap.erase("two")) {
-        cout << "Element with key 'two' was removed." << endl;
-    }
-    else {
-        cout << "Element with key 'two' was not found." << endl;
-    }
-    if (myMap.erase("two")) {
-        cout << "Element with key 'two' was removed." << endl;
-    }
-    else {
-        cout << "Element with key 'two' was not found." << endl;
-    }
-    myMap.print();
+
+    cout << "Value for key 3: " << map[3] << endl;
+
+    map[7] = 'x';
+    map.show();
+    cout << endl;
 
     return 0;
-}
+};
 
